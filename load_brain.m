@@ -5,7 +5,7 @@ function[matrix] = load_brain(set, index)
 % TODO change the testrun and trainrun argument
 %
 %%%%%%%%%%
-% Input:    Int. The indexnumber of the Brian we want to work with.
+% input:    Int. The indexnumber of the Brian we want to work with.
 % output:   176x208x176xint16. The 4D brain Matrix.
 %%%%%%%%%%
 %
@@ -20,4 +20,4 @@ file = strcat(set, '_', num2str(index), '.nii');
 brain = load_nii(strcat(path, file));
 matrix = brain.img;
 
-clear s1 s2 s3 filename;
+clear path file;
