@@ -1,22 +1,33 @@
-% load a brain and run all extractors on it
+% load a brain and run extractors on it
+% input: data set and index of the brain to be processed
+% output: 1xn vector containing all the feature scores
 
 function[x] = extract_features(set, index)
 
-x = [];
+    % init x
+    x = [];
 
-brain = load_brain(set, index);
+    % load brain
+    brain = load_brain(set, index);
 
-path = './extractors';
-exts = dir(fullfile(path, '*.m'));
-count = length(exts);
+    % contruct path (might make this flexible, for randomization)
+    path = './extractors';
+    % get list of all .m files in path
+    exts = dir(fullfile(path, '*.m'));
+    % number of extractors in path
+    count = length(exts);
 
-for k = 1:count
-    [~, ext, ~] = fileparts(exts(k).name);
-    try
-        line = strcat(ext, '(brain)');
-        x = [x, eval(line)];
-    catch
-        fprintf('failed: %s\n', ext);
+    % iterate over all extractors
+    for k = 1:count
+        % get filename
+        [~, ext, ~] = fileparts(exts(k).name);
+        try
+            % attempt to run extractor, pass brain data as param
+            line = strcat(ext, '(brain)');
+            x = [x, eval(line)];
+        catch
+            % if it fails, print (nondescript) fail message :)
+            fprintf('extractor %s failed :(\n', ext);
+        end
     end
 end
-        

@@ -1,23 +1,16 @@
-
+% load specific brain data from specified data set
+% input: data set and index of the brain data to be loaded
+% output: 176x208x176 matrix integer matrix
 function[matrix] = load_brain(set, index)
 
-% This function loads the Braindata out of the directory and converts it into the 4D-matrix
-% TODO change the testrun and trainrun argument
-%
-%%%%%%%%%%
-% input:    Int. The indexnumber of the Brian we want to work with.
-% output:   176x208x176xint16. The 4D brain Matrix.
-%%%%%%%%%%
-%
-% functions documentation
-% 1. opening the directory
-% 2. constructing a string containing the wanted filename
-% 3. loading the 4D matrix
-
-path = strcat('./data/set_', set, '/');
-file = strcat(set, '_', num2str(index), '.nii');
-
-brain = load_nii(strcat(path, file));
-matrix = brain.img;
-
-clear path file;
+    % construct path, data must be placed here!
+    path = strcat('./data/set_', set, '/');
+    % construct file name
+    file = strcat(set, '_', num2str(index), '.nii');
+    
+    % load brain using nifty libs
+    brain = load_nii(strcat(path, file));
+    %extract matrix from brain struct
+    matrix = brain.img;
+    
+end
