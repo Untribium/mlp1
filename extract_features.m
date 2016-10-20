@@ -2,32 +2,30 @@
 % input: data set and index of the brain to be processed
 % output: 1xn vector containing all the feature scores
 
-function[x] = extract_features(data_set, index, extractor_set)
+function x = extract_features(data_set, index, extractor_set)
 
-    % init x
-    x = [];
-
-    % load brain
-    brain = load_brain(data_set, index);
-
-    % contruct path (might make this flexible, for randomization)
-    path = strccat('./extractors/', extractor_set);
-    % get list of all .m files in path
-    exts = dir(fullfile(path, '*.m'));
+    % contruct path
+    path = strcat('./extractors/', extractor_set, '/');
+    
+    if(exist(path, 'dir') ~= 7)
+        error('This extractor_set does not exist!')
+    end
+    
+    % get list of all .mat files in path
+    exts = dir(fullfile(path, '*.mat'));
     % number of extractors in path
     count = length(exts);
+    
+    % init x
+    x = zeros(1, count);
+    
+    % load brain
+    data = load_brain(data_set, index);
 
     % iterate over all extractors
     for k = 1:count
-        % get filename
-        [~, ext, ~] = fileparts(exts(k).name);
-        try
-            % attempt to run extractor, pass brain data as param
-            line = strcat(ext, '(brain)');
-            x = [x, eval(line)];
-        catch
-            % if it fails, print (nondescript) fail message :)
-            fprintf('extractor %s failed :(\n', ext);
-        end
+        load(strcat(path, exts(k).name));
+        x(k) = e.extract(data);
+        clear e
     end
 end
