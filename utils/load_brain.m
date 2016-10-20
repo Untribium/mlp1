@@ -1,7 +1,7 @@
 % load specific brain data from specified data set
 % input: data set and index of the brain data to be loaded
 % output: 176x208x176 matrix integer matrix
-function[matrix] = load_brain(set, index)
+function matrix = load_brain(set, index)
 
     % construct path, data must be placed here!
     path = strcat('./data/set_', set, '/');
