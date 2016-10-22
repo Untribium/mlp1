@@ -4,4 +4,7 @@ data/*
 # ignore temp files
 *~
 
+# ignore extractor sets with prefix '_'
+/extractors/_*
+
 
