@@ -10,6 +10,6 @@ classdef Region
     
     methods(Abstract, Static)
         max = max_size()
-        rand = random()
+        rand = random_instance()
     end
 end

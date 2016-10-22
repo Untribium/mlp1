@@ -13,12 +13,16 @@ classdef Cuboid < Region
             o.z = z;
         end
         
-        function scores = histogram(o, data, n_buckets)
-            s_data = o.submatrix(data);
-            hgram = histcounts(s_data, n_buckets);
-            mean = mean2(s_data);
-            std = std2(s_data);
-            scores = [hgram, mean, std];
+        function hgram = histogram(o, data, n_buckets)
+            hgram = histcounts(o.submatrix(data), n_buckets);
+        end
+        
+        function mean = mean(o, data)
+            mean = mean2(o.submatrix(data));
+        end
+        
+        function std = std(o, data)
+            std = std2(o.submatrix(data));
         end
         
         function sub = submatrix(o, data)
@@ -31,7 +35,7 @@ classdef Cuboid < Region
             max = [176,208,176];
         end
         
-        function rand = random()
+        function o = random_instance()
             % create random cuboid
             size = Cuboid.max_size();
             
@@ -47,7 +51,7 @@ classdef Cuboid < Region
             z = randi([1, size(3)], 1, 2);
             z = sort(z);
             
-            rand = Cuboid(x, y, z);
+            o = Cuboid(x, y, z);
         end
     end
 end
