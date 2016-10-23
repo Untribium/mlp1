@@ -62,7 +62,7 @@ classdef DataSet
         function Yp = predict(o, suite, train_data)
             Xt = train_data.extract_features(suite);
             p = train_data.regress(Xt);
-            if(o == train_data)
+            if(isequal(o, train_data))
                 X = Xt;
             else
                 X = o.extract_features(suite);
