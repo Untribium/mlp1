@@ -15,10 +15,10 @@ function optimize(set_name, suite_name, n_cands, n_final)
         error('''n_final'' is smaller than the number of extractors already in suite ''%s''!', suite_name)
     end
     
-    % extract X from stored extractors on current data, calculate rsq
+    % extract X from stored extractors on current data set, calculate rsq
     fprintf('[init] Extracting features from ''%s''\n', suite_name);
     X = data.extract_features(suite);
-    [~, rsq] = data.regress(X);
+    rsq = data.calc_rsq(X);
     
     fprintf('[init] Setting up candidates array and matrix\n');
     candidates = Extractor.empty(0);
