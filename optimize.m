@@ -44,7 +44,7 @@ function optimize(set_name, suite_name, n_cands, n_final)
         warning('off', 'stats:regress:RankDefDesignMat');
         
         % calculate individual fit
-        [~, rsq_c] = data.regress(X_c(:, 1));
+        rsq_c = data.calc_rsq(X_c(:, 1));
         
         % is it good (enough)?
         if(rsq_c > 0.2)
@@ -54,7 +54,7 @@ function optimize(set_name, suite_name, n_cands, n_final)
                 suite = [suite, candidates(1)];
                 X = [X, X_c(:, 1)];
                 candidates(1).save(suite_name);
-                [~, rsq] = data.regress(X);
+                rsq = data.calc_rsq(X);
                 fprintf('[take] Choosing candidate\n');
                 
                 batch_res(2) = batch_res(2)+1;
@@ -65,7 +65,7 @@ function optimize(set_name, suite_name, n_cands, n_final)
                 for i = 1:n_final
                     C = X;
                     C(:, i) = X_c(:, 1);
-                    [~, rsqs(i)] = data.regress(C);
+                    rsqs(i) = data.calc_rsq(C);
                 end
 
                 if(max(rsqs) > rsq)
