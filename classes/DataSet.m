@@ -21,28 +21,52 @@ classdef DataSet
             files = dir(fullfile(o.path, '*.nii'));
             o.count = length(files);
             
-            o.targets = csvread(strcat(o.path, 'targets.csv'));
-            o.sumsq = var(o.targets)*o.count-1;
-        end
-        
-        function X = extract_features(o, suite)
-            
-            X = zeros(o.count, length(suite));
-            
-            for i = 1:o.count
-                % load braaaain
-                b = o.load(i);
-                
-                % run all extractors on b
-                for j = 1:length(suite)
-                    X(i, j) = suite(j).extract(b);
-                end
+            t_path = strcat(o.path, 'targets.csv');
+            if(exist(t_path, 'file'))
+                o.targets = csvread(t_path);
+                o.sumsq = var(o.targets)*o.count-1;
             end
         end
         
-        function Yp = predict(o, suite)
-            X = o.extract_features(suite);
-            p = o.regress(X);
+        function X = extract_features(o, suite)
+            n_ext = length(suite);
+            epadl = floor(log10(n_ext))+1;
+            epads = num2str(epadl);
+            dpadl = floor(log10(o.count))+1;
+            dpads = num2str(dpadl);
+            
+            X = zeros(o.count, n_ext);
+            
+            if(isempty(suite))
+                fprintf('%s[data] Empty suite\n', ts());
+            else
+                fprintf(['%s[data] Extracting sample %', dpads, 'd of %d, feature %', epads, 'd of %d'], ts(), 0, o.count, 0, n_ext);
+
+                for i = 1:o.count
+                    % load braaaain
+                    b = o.load(i);
+
+                    fprintf([repmat('\b', 1, 2*(dpadl+epadl)+18), '%', dpads, 'd of %d, feature %', epads, 'd of %d'], i, o.count, 0, n_ext);
+
+                    % run all extractors on b
+                    for j = 1:n_ext
+                        X(i, j) = suite(j).extract(b);
+                        fprintf([repmat('\b', 1, 2*epadl+4), '%', epads, 'd of %d'], j, n_ext);
+                    end
+                end
+
+                fprintf('\n');
+            end
+        end
+        
+        function Yp = predict(o, suite, train_data)
+            Xt = train_data.extract_features(suite);
+            p = train_data.regress(Xt);
+            if(o == train_data)
+                X = Xt;
+            else
+                X = o.extract_features(suite);
+            end
             X_ = [ones(o.count, 1), X];
             Yp = X_*p;
         end

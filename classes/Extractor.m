@@ -42,13 +42,13 @@ classdef Extractor
         
         function save(o, suite_name)
             path = strcat('./extractors/', suite_name, '/');
-            fprintf('[save] Saving extractor ''%s''\n', o.name);
+            % fprintf('[save] Saving extractor ''%s''\n', o.name);
             save(strcat(path, o.name, '.mat'), 'o');
         end
         
         function delete(o, suite_name)
             path = strcat('./extractors/', suite_name, '/');
-            fprintf('[delete] Deleting extractor ''%s''\n', o.name);
+            % fprintf('[delete] Deleting extractor ''%s''\n', o.name);
             delete(strcat(path, o.name, '.mat'));
         end
     end
