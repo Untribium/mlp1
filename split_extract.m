@@ -1,4 +1,8 @@
 function X = split_extract(set_name, n, n_buc)
+
+    % add mean and std
+    n_buc = n_buc+2;
+
     % load specified set
     data = DataSet(set_name);
     
@@ -15,7 +19,8 @@ function X = split_extract(set_name, n, n_buc)
         
         % extract all features
         for j=1:n^3
-            X(i, (j-1)*n_buc+1:j*n_buc) = cubes(j).histogram(b, n_buc);
+            scores = [cubes(j).histogram(b, n_buc-2), cubes(j).mean(b), cubes(j).std(b)];
+            X(i, (j-1)*n_buc+1:j*n_buc) = scores;
         end
     end
     
