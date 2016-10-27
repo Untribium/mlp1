@@ -15,7 +15,7 @@ classdef DataSet
             o.path = strcat('./data/set_', o.name, '/');
             
             if(exist(o.path, 'dir') ~= 7)
-                error('There is no data set named %s!', o.name)
+                error('There is no data set named ''%s''!', o.name)
             end
             
             files = dir(fullfile(o.path, '*.nii'));
@@ -51,7 +51,7 @@ classdef DataSet
                     % run all extractors on b
                     for j = 1:n_ext
                         X(i, j) = suite(j).extract(b);
-                        fprintf([repmat('\b', 1, 2*epadl+4), '%', epads, 'd of %d'], j, n_ext);
+                        % fprintf([repmat('\b', 1, 2*epadl+4), '%', epads, 'd of %d'], j, n_ext);
                     end
                 end
 

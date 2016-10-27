@@ -1,7 +1,6 @@
 classdef Region
     
     properties
-        
     end
     
     methods(Abstract)
