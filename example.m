@@ -13,7 +13,7 @@ Xt = split_extract('test', 7, 10);
 Xt(:,find(~std(X))) = [];
 X(:,find(~std(X))) = [];
 
-% perform lasso with 17-fold cross validation
+% perform lasso with 17-fold cross validation (17 = ceil(sqrt(278)))
 % since no lambda is given, lasso will try different ones
 [B, I] = lasso(X, Y, 'CV', 17);
 
@@ -21,7 +21,7 @@ X(:,find(~std(X))) = [];
 % this is much faster though
 % [B, I] = lasso(X, Y);
 
-% index of lambda vector with smallest CV error
+% index of lambda vector with smallest CV error (if CV was used)
 % not necessarily optimal, other values might give better scores
 i = I.IndexMinMSE;
 

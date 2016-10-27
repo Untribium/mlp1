@@ -25,6 +25,17 @@ classdef Cuboid < Region
             std = std2(o.submatrix(data));
         end
         
+        function hog = hog(o, data)
+            M = o.submatrix(data);
+            M = M(:, floor((o.y(2)-o.y(1))/2), :);
+            I = mat2gray(squeeze(M));
+            
+            bs = [2,2];
+            cs = floor([o.x(2)-o.x(1), o.z(2)-o.z(1)]./bs);
+            
+            hog = extractHOGFeatures(I, 'CellSize', cs, 'BlockSize', bs, 'NumBins', 3, 'BlockOverlap', [0,0]);
+        end
+        
         function sub = submatrix(o, data)
             sub = data(o.x(1):o.x(2), o.y(1):o.y(2), o.z(1):o.z(2));
         end
@@ -62,7 +73,7 @@ classdef Cuboid < Region
         function o = max_instance()
             s = Cuboid.max_size()';
             s = [ones(3,1), s];
-            o = Cuboid(s(1,:), s(1,:), s(1,:));
+            o = Cuboid(s(1,:), s(2,:), s(3,:));
         end
         
         function o = random_instance()
