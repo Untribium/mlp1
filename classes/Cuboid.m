@@ -1,4 +1,4 @@
-classdef Cuboid < handle
+classdef Cuboid < handle & Region
     
     properties
         x

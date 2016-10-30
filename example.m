@@ -1,44 +1,40 @@
-% make sure your data is in the ./data folder!!!
-% that is, there should be folders set_train and set_test in there
-% additionally, place targets.csv in set_train
+% assuming data is in ./data folder
+train = DataSet('train');
+test = DataSet('test');
 
-% load true values
-Y = DataSet('train').targets;
+Y = train.targets;
 
-% extract and normalize features
-[X,nf] = split_extract('train', 7, 10);
-[Xt,~] = split_extract('test', 7, 10, nf);
+% normalize data
+% ONLY DO THIS ONCE! Normalized data is stored to disk!
+%train.normalize_set();
+%test.normalize_set();
 
-% remove features with no content (aka std = 0)
-Xt(:,find(~std(X))) = [];
-X(:,find(~std(X))) = [];
+% generate the cuboids
+cubes = generate_cubes(17);
 
-% perform lasso with 17-fold cross validation (17 = ceil(sqrt(278)))
-% since no lambda is given, lasso will try different ones
-[B, I] = lasso(X, Y, 'CV', 17);
+% extract features, false = non-normalized data
+X = extract_features('train', cubes, 8, false);
+Xt = extract_features('test', cubes, 8, false);
 
-% or run it without CV, choose i by trial and error (risk of overfitting)
-% this is much faster though
-% [B, I] = lasso(X, Y);
+% extract features from normalized data
+%X = extract_features('train', cubes, 8, true);
+%Xt = extract_features('test', cubes, 8, true);
 
-% index of lambda vector with smallest CV error (if CV was used)
-% not necessarily optimal, other values might give better scores
+% normalize features (optional)
+%[X, Xt, ~] = normalize_features(X, Xt, 1.5);
+
+% regression for all values
+[B, I] = lasso(X, Y, 'Alpha', 0.375, 'CV', 17);
+
+% get beta hat
 i = I.IndexMinMSE;
+b = B(:, i);
+o = I.intercept(i);
 
-% or choose the model with lowest complexity that is within 1 SE
-% should yield better bias variance tradeoff, ususally worse though
-% i = I.Index1SE;
+% calculate prediction for test set
+Y_pred = Xt*b_all+o_all;
 
-% intercept (aka offset) for lambda(i)
-o = I.Intercept(i);
+% write prediction to .csv
+create_submission(Y_pred);
 
-% predict (remember, this is still linear regression)
-Ypt = Xt*B(:, i)+o;
-
-% adjust for difference in mean value of test and training set
-% Ypt = Ypt-4;
-
-% write csv, path is ./extractors/_lasso/prediction.csv
-create_submission(Ypt, '_lasso');
-
-% now upload the file here: https://inclass.kaggle.com/c/mlp1/submissions/attach
+% upload at https://inclass.kaggle.com/c/mlp1/submissions/attach
