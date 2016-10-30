@@ -26,7 +26,7 @@ Xt = extract_features('test', cubes, 8, false);
 %[X, Xt, ~] = normalize_features(X, Xt, 2);
 
 % regression for all values
-[B, I] = lasso(X, Y, 'Alpha', 0.25);
+[B, I] = lasso(X, Y, 'Alpha', 0.375);
 
 % store beta vector (first seems best, overfit?...)
 b_all = B(:, 1);
@@ -54,3 +54,6 @@ end
 for i=1:test.count
     %Y_pred = Xt(i, :)*bs(floor(Y_pred/2))+os(a);
 end
+
+% write prediction to folder
+create_submission(Y_pred);

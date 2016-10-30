@@ -1,8 +1,10 @@
-function create_submission(pred, suite_name)
-    if(nargin < 2)
+function create_submission(pred)
+    
+    if(nargin < 1)
         error('Not enough input args!');
     end
-    path = ['./extractors/', suite_name, '/prediction.csv'];
+    
+    path = './prediction.csv';
     fid = fopen(path, 'w');
     fprintf(fid, 'ID,Prediction\n');
     fclose(fid);
