@@ -3,7 +3,7 @@
 % keeps the ones that lead to improved accuracy
 % Can be run for an arbitrary duration and stopped at any time, extractors
 % are always saved to and loaded from disk (./extractors/suite_name)
-function optimize(set_name, suite_name, n_cands, n_suite, threshold)
+function optimize_lasso(set_name, suite_name, n_cands, threshold)
     
     padl = floor(log10(n_cands))+1;
     pads = num2str(padl);
@@ -11,17 +11,22 @@ function optimize(set_name, suite_name, n_cands, n_suite, threshold)
     fprintf('%s[init] Initializing data set ''%s''\n', ts(), set_name);
     data = DataSet(set_name);
     
+    test = DataSet('test');
+    
     fprintf('%s[init] Loading suite ''%s''\n', ts(), suite_name);
     suite = load_suite(suite_name);
-    
-    if(length(suite) > n_suite)
-        error('''n_final'' is smaller than the number of extractors already in suite ''%s''!', suite_name)
-    end
     
     % extract X from stored extractors on current data set, calculate rsq
     fprintf('%s[init] Extracting features from ''%s''\n', ts(), suite_name);
     X = data.extract_features(suite);
+    X = regularize_features(X);
     rsq = data.calc_rsq(X);
+    
+    Xtest = test.extract_features(suite);
+    Xtest = regularize_features(Xtest);
+    Xtest = [ones(test.count, 1), Xtest];
+    
+    fprintf('(%i by %i), (%i by %i)\n', size(X, 1), size(X, 2), size(Xtest, 1), size(Xtest, 2));
     
     fprintf('%s[init] Setting up candidates array and matrix\n', ts());
     candidates = Extractor.empty(0);
@@ -39,6 +44,7 @@ function optimize(set_name, suite_name, n_cands, n_suite, threshold)
             fprintf('%s[cgen] Candidates empty, generating new batch\n', ts());
             candidates = Extractor.random_batch(n_cands);
             X_c = data.extract_features(candidates);
+            X_c = regularize_features(X_c);
             
             batch_res = zeros(3, 1);
         
@@ -57,43 +63,32 @@ function optimize(set_name, suite_name, n_cands, n_suite, threshold)
         % is it good (enough)?
         if(rsq_c > threshold)
             
-            if(length(suite) < n_suite)
-                % if set is not full, take candidate
-                suite = [suite, candidates(1)];
-                X = [X, X_c(:, 1)];
-                candidates(1).save(suite_name);
-                rsq = data.calc_rsq(X);
-                % fprintf('[take] Choosing candidate\n');
-                
-                batch_res(3) = batch_res(3)+1;
-            else
-                % else swap chosen extractors with candidate, check rsq
-                % fprintf('[comp] Comparing candidate against current suite\n');
-                rsqs = zeros(1, n_suite);
-                for i = 1:n_suite
-                    C = X;
-                    C(:, i) = X_c(:, 1);
-                    rsqs(i) = data.calc_rsq(C);
-                end
+            C = [ones(data.count, 1), X, X_c(:, 1)];
+            
+            B = lasso(C, data.targets, 'CV', sqrt(data.count));
+            
+            b = B(:, 50);
+            
+            Yp = C*b;
 
-                if(max(rsqs) > rsq)
-                    % if better, replace previously chosen extractor
-                    % fprintf('[take] Choosing candidate\n');
-                    rsq = max(rsqs);
-                    [~, ind] = sort(rsqs, 'descend');
-                    
-                    suite(ind(1)).delete(suite_name);
-                    candidates(1).save(suite_name);
-                    
-                    X(:, ind(1)) = X_c(:, 1);
-                    suite(ind(1)) = candidates(1);
-                    
-                    batch_res(3) = batch_res(3)+1;
-                else
-                    % else drop the candidate
-                    % fprintf('[comp] No improvement\n');
-                    batch_res(2) = batch_res(2)+1;
-                end
+            rsq_lasso = 1 - sum((data.targets - Yp).^2)/data.sumsq;
+            
+            if(rsq < rsq_lasso)
+                batch_res(3) = batch_res(3)+1;
+                candidates(1).save(suite_name);
+                suite = [suite, candidates(1)];
+                X = C;
+                
+                rsq = rsq_lasso;
+                
+                x = test.extract_features(candidates(1));
+                x = regularize_features(x);
+                Xtest = [Xtest, x];
+                Yp_test = Xtest*b;
+                
+                save('yp.mat', 'Yp_test');
+            else
+                batch_res(2) = batch_res(2)+1;
             end
         else
             batch_res(1) = batch_res(1)+1;

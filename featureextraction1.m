@@ -1,4 +1,4 @@
-function[featureval1,featureval2,featureval3,featureval4,featureval5,featureval6,featureval7,featureval8,featureval9,featureval10]=featureextraction1(matrix,numofbin)
+helpfunction[featureval1,featureval2,featureval3,featureval4,featureval5,featureval6,featureval7,featureval8,featureval9,featureval10]=featureextraction1(matrix,numofbin)
 
 
 % This function extracts a information out of the 4D-matrix (voxel box).$

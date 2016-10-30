@@ -1,9 +1,11 @@
-classdef Cuboid < Region
+classdef Cuboid < handle
     
     properties
         x
         y
         z
+        v_min
+        v_max
     end
     
     methods
@@ -11,10 +13,21 @@ classdef Cuboid < Region
             o.x = x;
             o.y = y;
             o.z = z;
+            o.v_min = Inf;
+            o.v_max = 0;
         end
         
-        function hgram = histogram(o, data, n_buckets)
-            hgram = histcounts(o.submatrix(data), n_buckets);
+        function [d_min, d_max] = extreme_values(o, data)
+            sub = o.submatrix(data);
+            d_min = min(sub(:));
+            d_max = max(sub(:));
+            o.v_min = min(d_min, o.v_min);
+            o.v_max = max(d_max, o.v_max);
+        end
+        
+        function hgram = histogram(o, data, n_bins)
+            hgram = histcounts(o.submatrix(data), n_bins);
+            %hgram = histcounts(o.submatrix(data), linspace(double(o.v_min), double(o.v_max), n_bins+1));
         end
         
         function mean = mean(o, data)
@@ -25,19 +38,9 @@ classdef Cuboid < Region
             std = std2(o.submatrix(data));
         end
         
-        function hog = hog(o, data)
-            M = o.submatrix(data);
-            M = M(:, floor((o.y(2)-o.y(1))/2), :);
-            I = mat2gray(squeeze(M));
-            
-            bs = [2,2];
-            cs = floor([o.x(2)-o.x(1), o.z(2)-o.z(1)]./bs);
-            
-            hog = extractHOGFeatures(I, 'CellSize', cs, 'BlockSize', bs, 'NumBins', 3, 'BlockOverlap', [0,0]);
-        end
-        
         function sub = submatrix(o, data)
             sub = data(o.x(1):o.x(2), o.y(1):o.y(2), o.z(1):o.z(2));
+            sub = sub(sub~=-Inf);
         end
         
         function cubes = split(o, n)

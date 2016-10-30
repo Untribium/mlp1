@@ -6,8 +6,8 @@
 Y = DataSet('train').targets;
 
 % extract and normalize features
-X = split_extract('train', 7, 10);
-Xt = split_extract('test', 7, 10);
+[X,nf] = split_extract('train', 7, 10);
+[Xt,~] = split_extract('test', 7, 10, nf);
 
 % remove features with no content (aka std = 0)
 Xt(:,find(~std(X))) = [];

@@ -59,6 +59,31 @@ classdef DataSet
             end
         end
         
+        function normalize_set(o)
+            mkdir([o.path, 'normalized/']);
+            
+            for i=1:o.count
+                b = o.load(i);
+                
+                %{
+                b_max = double(max(b(:)));
+                
+                b_n = double(b)/b_max;
+                %}
+                
+                b_n = double(b);
+                
+                b_n(b_n==0) = -Inf;
+                b_mean = mean(b_n(b_n~=-Inf));
+                b_n = b_n - b_mean;
+                b_std = std(b_n(b_n~=-Inf));
+                b_n = b_n/b_std;
+                
+                file = [o.path, 'normalized/', o.name, '_', num2str(i), '.mat'];
+                save(file, 'b_n');
+            end
+        end
+        
         function Yp = predict(o, suite, train_data)
             Xt = train_data.extract_features(suite);
             p = train_data.regress(Xt);
@@ -96,6 +121,11 @@ classdef DataSet
             
             % extract matrix from brain struct
             b = s.img;
+        end
+        
+        function b_n = load_normalized(o, index)
+            file = [o.path, 'normalized/', o.name, '_', num2str(index), '.mat'];
+            load(file);
         end
         
         function view(o, index)
