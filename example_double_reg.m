@@ -26,7 +26,7 @@ Xt = extract_features('test', cubes, 8, false);
 %[X, Xt, ~] = normalize_features(X, Xt, 2);
 
 % regression for all values
-[B, I] = lasso(X, Y, 'Alpha', 0.1);
+[B, I] = lasso(X, Y, 'Alpha', 0.25);
 
 % store beta vector (first seems best, overfit?...)
 b_all = B(:, 1);
