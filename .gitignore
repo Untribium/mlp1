@@ -1,6 +1,9 @@
 # ignore data folder
 data/*
 
+# ignore submission folder
+submission_TCBYA/*
+
 # ignore temp files
 *~
 

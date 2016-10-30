@@ -6,25 +6,21 @@ Y = train.targets;
 
 % normalize data
 % ONLY DO THIS ONCE! Normalized data is stored to disk!
-%train.normalize_set();
-%test.normalize_set();
+train.normalize_set();
+test.normalize_set();
 
 % generate the cuboids
 cubes = generate_cubes(17);
 
-% extract features, false = non-normalized data
-X = extract_features('train', cubes, 8, false);
-Xt = extract_features('test', cubes, 8, false);
-
-% extract features from normalized data
-%X = extract_features('train', cubes, 8, true);
-%Xt = extract_features('test', cubes, 8, true);
+% extract features
+X = extract_features('train', cubes, 8, true);
+Xt = extract_features('test', cubes, 8, true);
 
 % normalize features (optional)
-%[X, Xt, ~] = normalize_features(X, Xt, 1.5);
+%[X, Xt, ~] = normalize_features(X, Xt, 1.25);
 
 % regression for all values
-[B, I] = lasso(X, Y, 'Alpha', 0.375, 'CV', 17);
+[B, I] = lasso(X, Y, 'Alpha', 0.36, 'CV', 17);
 
 % get beta hat
 i = I.IndexMinMSE;
